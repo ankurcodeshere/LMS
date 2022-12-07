@@ -16,12 +16,13 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class BatchRegisterDto {
-	private String batchId;
+
+public class BatchUpdateDto {
 	private String batchName;
 	private String mentorName;
 	private List<TechnologiesDto> technologies;
 	private LocalDate startDate;
 	private LocalDate endDate;
 	private BatchStatus status;
+
 }

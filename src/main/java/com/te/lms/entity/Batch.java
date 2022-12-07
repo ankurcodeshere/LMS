@@ -7,14 +7,12 @@ import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToOne;
 
 import com.google.common.collect.Lists;
-import com.te.lms.enums.Status;
+import com.te.lms.enums.BatchStatus;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -30,8 +28,7 @@ import lombok.Setter;
 @Entity
 public class Batch {
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Integer batchId;
+	private String batchId;
 	private String batchName;
 	private String mentorName;
 	
@@ -40,7 +37,7 @@ public class Batch {
 	private LocalDate startDate;
 	private LocalDate endDate;
 	@Enumerated(EnumType.STRING)
-	private Status status;
+	private BatchStatus status;
 	@OneToOne(cascade = CascadeType.ALL)
 	private Mentor mentor;
 
