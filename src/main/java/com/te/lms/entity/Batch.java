@@ -9,10 +9,12 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
 import com.google.common.collect.Lists;
 import com.te.lms.enums.BatchStatus;
+import com.te.lms.enums.Status;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -37,8 +39,13 @@ public class Batch {
 	private LocalDate startDate;
 	private LocalDate endDate;
 	@Enumerated(EnumType.STRING)
-	private BatchStatus status;
+	private BatchStatus batchStatus;
+	@Enumerated(EnumType.STRING)
+	private Status status;
 	@OneToOne(cascade = CascadeType.ALL)
 	private Mentor mentor;
+	
+	@OneToMany(cascade = CascadeType.ALL,mappedBy ="batch")
+	private List<Employee> employees =Lists.newArrayList();
 
 }

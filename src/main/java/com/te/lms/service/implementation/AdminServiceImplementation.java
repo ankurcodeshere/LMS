@@ -7,19 +7,26 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Lists;
+import com.te.lms.dto.ApproveDto;
 import com.te.lms.dto.BatchRegisterDto;
 import com.te.lms.dto.BatchUpdateDto;
 import com.te.lms.dto.MentorDto;
 import com.te.lms.dto.MentorUpdateDto;
+import com.te.lms.dto.RejectDto;
+import com.te.lms.dto.RequestListMessageDto;
 import com.te.lms.dto.TechnologiesDto;
 import com.te.lms.entity.AppUser;
 import com.te.lms.entity.Batch;
+import com.te.lms.entity.Employee;
 import com.te.lms.entity.Mentor;
 import com.te.lms.entity.Roles;
 import com.te.lms.entity.Technologies;
+import com.te.lms.enums.Status;
 import com.te.lms.repository.AppUserRepository;
 import com.te.lms.repository.BatchRepository;
+import com.te.lms.repository.EmployeeRepository;
 import com.te.lms.repository.MentorRepository;
+import com.te.lms.repository.RequestRepository;
 import com.te.lms.repository.RoleRepository;
 import com.te.lms.service.AdminService;
 
@@ -33,6 +40,8 @@ public class AdminServiceImplementation implements AdminService {
 	private final BatchRepository batchRepository;
 	private final RoleRepository roleRepository;
 	private final AppUserRepository appUserRepository;
+	private final EmployeeRepository employeeRepository;
+	private final RequestRepository requestRepository;
 
 	@Override
 	public Optional<String> registerMentor(MentorDto mentorDto) {
@@ -53,6 +62,7 @@ public class AdminServiceImplementation implements AdminService {
 					.roles(Lists.newArrayList()).build();
 			appUser.getRoles().add(role.get());
 			Roles roles = Roles.builder().roleName("ROLE_MENTOR").appUsers(Lists.newArrayList()).build();
+			mentor.setStatus(Status.ACTIVE);
 			appUserRepository.save(appUser);
 			mentor.setSkills(technologies);
 			mentorRepository.save(mentor);
@@ -76,6 +86,7 @@ public class AdminServiceImplementation implements AdminService {
 			technologies.add(technologies1);
 			technologies1.getBatch().add(batch);
 		}
+		batch.setStatus(Status.ACTIVE);
 		batch.setTechnologies(technologies);
 		batchRepository.save(batch);
 
@@ -87,8 +98,8 @@ public class AdminServiceImplementation implements AdminService {
 		Mentor mentor = new Mentor();
 		Optional<Mentor> optionalMentor = mentorRepository.findById(empId);
 		if (optionalMentor.isPresent()) {
-			mentor.setMentorName(optionalMentor.get().getMentorName());
-			mentor.setMentorEmailId(optionalMentor.get().getMentorEmailId());
+			optionalMentor.get().setMentorName(mentorUpdateDto.getMentorName());
+			optionalMentor.get().setMentorEmailId(mentorUpdateDto.getMentorEmailId());
 			for (TechnologiesDto technologiesDto : mentorUpdateDto.getSkills()) {
 				Technologies technologies = new Technologies();
 				BeanUtils.copyProperties(technologiesDto, technologies);
@@ -96,40 +107,32 @@ public class AdminServiceImplementation implements AdminService {
 			}
 			BeanUtils.copyProperties(optionalMentor.get(), mentor);
 			mentorRepository.save(mentor);
+			return true;
 		}
-
-		return null;
-
+		return false;
 	}
-	
+
 	@Override
 	public Optional<Boolean> updateBatch(BatchUpdateDto batchUpdateDto, String batchId) {
 		Batch batch = new Batch();
 		Optional<Batch> optionalBatch = batchRepository.findById(batchId);
-		if(optionalBatch.isPresent()) {
+		if (optionalBatch.isPresent()) {
 			/* setting the updated fields from the Dto */
-			batch.setBatchName(optionalBatch.get().getBatchName());
-			batch.setMentorName(optionalBatch.get().getMentorName());
-			batch.setStartDate(optionalBatch.get().getStartDate());
-			batch.setEndDate(optionalBatch.get().getEndDate());
-			batch.setStartDate(optionalBatch.get().getStartDate());
-			batch.setStatus(optionalBatch.get().getStatus());
-			
-			/* adding updated technologies to the list*/
-			for(TechnologiesDto technologiesDto:batchUpdateDto.getTechnologies()) {
+			optionalBatch.get().setBatchName(batchUpdateDto.getBatchName());
+			optionalBatch.get().setMentorName(batchUpdateDto.getMentorName());
+			optionalBatch.get().setStartDate(batchUpdateDto.getStartDate());
+			optionalBatch.get().setEndDate(batchUpdateDto.getEndDate());
+			optionalBatch.get().setStartDate(batchUpdateDto.getStartDate());
+			optionalBatch.get().setBatchStatus(batchUpdateDto.getBatchStatus());
+
+			/* adding updated technologies to the list */
+			for (TechnologiesDto technologiesDto : batchUpdateDto.getTechnologies()) {
 				Technologies technologies = new Technologies();
 				BeanUtils.copyProperties(technologiesDto, technologies);
-				batch.getTechnologies().add(technologies);
+				optionalBatch.get().getTechnologies().add(technologies);
 			}
-			
-			/* adding technologies which were already present to the list*/
-			for(Technologies technologies:optionalBatch.get().getTechnologies()) {
-				Technologies technologiesold = new Technologies();
-				batch.getTechnologies().add(technologiesold);
-			}
-			BeanUtils.copyProperties(optionalBatch.get(),batch );
+			BeanUtils.copyProperties(optionalBatch.get(), batch);
 			batchRepository.save(batch);
-			
 			return Optional.ofNullable(true);
 		}
 		return Optional.ofNullable(false);
@@ -139,7 +142,8 @@ public class AdminServiceImplementation implements AdminService {
 	public Optional<Boolean> deleteMentor(String empId) {
 		Optional<Mentor> optionalMentor = mentorRepository.findById(empId);
 		if (optionalMentor.isPresent()) {
-			mentorRepository.delete(optionalMentor.get());
+			optionalMentor.get().setStatus(Status.INACTIVE);
+			mentorRepository.save(optionalMentor.get());
 			return Optional.ofNullable(true);
 		}
 		return Optional.ofNullable(false);
@@ -149,10 +153,101 @@ public class AdminServiceImplementation implements AdminService {
 	public Optional<Boolean> deleteBatch(String batchId) {
 		Optional<Batch> optionalBatch = batchRepository.findById(batchId);
 		if (optionalBatch.isPresent()) {
-			batchRepository.delete(optionalBatch.get());
+			optionalBatch.get().setStatus(Status.INACTIVE);
+			batchRepository.save(optionalBatch.get());
 			return Optional.ofNullable(true);
 		}
 		return Optional.ofNullable(false);
 	}
 
+	@Override
+	public Optional<MentorDto> searchEmployee(String employeeId) {
+		Optional<Mentor> optionalMentor = mentorRepository.findById(employeeId);
+		MentorDto mentorDto = new MentorDto();
+		if (optionalMentor.isPresent()) {
+			BeanUtils.copyProperties(optionalMentor.get(), mentorDto);
+			for (Technologies technologies : optionalMentor.get().getSkills()) {
+				TechnologiesDto technologiesDto  =new TechnologiesDto();
+				BeanUtils.copyProperties(technologies, technologiesDto);
+				mentorDto.getSkills().add(technologiesDto);
+			}
+			return Optional.ofNullable(mentorDto);
+		}
+		return null;
+	}
+
+	@Override
+	public Optional<RequestListMessageDto> approve(String employeeID, ApproveDto approveDto) {
+		Optional<Employee> optionalEmployee = employeeRepository.findById(employeeID);
+		if(optionalEmployee.isPresent()) {
+			Optional<Batch> optionalBatch = batchRepository.findById(approveDto.getBatchId());
+			if(optionalBatch.isPresent()) {
+			optionalEmployee.get().setBatch(optionalBatch.get());
+			}
+			employeeRepository.save(optionalEmployee.get());
+			Optional<Roles> role = roleRepository.findByRoleName("ROLE_EMPLOYEE");
+			if (role.isPresent()) {
+				AppUser appUser = AppUser.builder().username(employeeID).password("12345@Abc")
+						.roles(Lists.newArrayList()).build();
+				appUser.getRoles().add(role.get());
+				Roles roles = Roles.builder().roleName("ROLE_EMPLOYEE").appUsers(Lists.newArrayList()).build();
+				appUserRepository.save(appUser);
+				RequestListMessageDto requestListMessageDto = new RequestListMessageDto();
+				requestListMessageDto.setEmployeeEmail(optionalEmployee.get().getEmployeeEmail());
+				requestListMessageDto.setMessage("username = " + appUser.getUsername() + "\n" + "password = " + appUser.getPassword());
+				requestRepository.deleteById(employeeID);
+				return Optional.ofNullable(requestListMessageDto);
+			}
+		}
+		return null;
+	}
+
+	@Override
+	public Optional<RequestListMessageDto> reject(String employeeId, RejectDto rejectDto) {
+		Optional<Employee> optionalEmployee = employeeRepository.findById(employeeId);
+		if(optionalEmployee.isPresent()) {
+			RequestListMessageDto requestListMessageDto = new RequestListMessageDto();
+			requestListMessageDto.setEmployeeEmail(optionalEmployee.get().getEmployeeEmail());
+			requestRepository.deleteById(employeeId);
+			Optional<Employee> findById = employeeRepository.findById(employeeId);
+			findById.get().setStatus(Status.INACTIVE);
+			employeeRepository.save(optionalEmployee.get());
+			return Optional.ofNullable(requestListMessageDto);
+		}
+		return null;
+	}
+
+	@Override
+	public Optional<List<BatchRegisterDto>> batchList() {
+		List <BatchRegisterDto> batchRegisterDtos = Lists.newArrayList();
+		BatchRegisterDto batchRegisterDto = new BatchRegisterDto();
+		List<Batch> findAll = batchRepository.findAll();
+		for (Batch batch : findAll) {
+			for(Technologies t:batch.getTechnologies()) {
+				TechnologiesDto technologiesDto = new TechnologiesDto();
+				BeanUtils.copyProperties(t, technologiesDto);
+				batchRegisterDto.getTechnologies().add(technologiesDto);
+			}
+			BeanUtils.copyProperties(batch, batchRegisterDto);
+			batchRegisterDtos.add(batchRegisterDto);
+		}
+		return Optional.ofNullable(batchRegisterDtos);
+	}
+
+	@Override
+	public Optional<List<MentorDto>> mentorList() {
+		List<MentorDto> mentorDtos = Lists.newArrayList();
+		MentorDto mentorDto = new MentorDto();
+		List<Mentor> findAll = mentorRepository.findAll();
+		for (Mentor mentor : findAll) {
+			for(Technologies t:mentor.getSkills()) {
+				TechnologiesDto technologiesDto = new TechnologiesDto();
+				BeanUtils.copyProperties(t, technologiesDto);
+				mentorDto.getSkills().add(technologiesDto);
+			}
+			BeanUtils.copyProperties(mentor, mentorDto);
+			mentorDtos.add(mentorDto);
+		}
+		return Optional.ofNullable(mentorDtos);
+	}
 }

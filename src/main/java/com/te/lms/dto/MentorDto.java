@@ -2,6 +2,9 @@ package com.te.lms.dto;
 
 import java.util.List;
 
+import com.google.common.collect.Lists;
+import com.te.lms.enums.Status;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,5 +20,6 @@ public class MentorDto {
 	private String mentorName;
 	private String mentorEmailId;
 	private String employeeId;
-	private List<TechnologiesDto> skills;
+	private List<TechnologiesDto> skills = Lists.newArrayList();
+	private Status status;
 }

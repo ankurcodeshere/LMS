@@ -43,7 +43,4 @@ public class Mentor {
 	
 	@Enumerated(EnumType.STRING)
 	private Status status;
-	
-	
-
 }

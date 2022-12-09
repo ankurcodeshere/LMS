@@ -7,15 +7,19 @@ import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
+import com.google.common.collect.Lists;
 import com.te.lms.enums.Designation;
 import com.te.lms.enums.EmployeeStatus;
 import com.te.lms.enums.Gender;
+import com.te.lms.enums.Status;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -48,13 +52,16 @@ public class Employee {
 	
 	@Enumerated(EnumType.STRING)
 	private EmployeeStatus employeeStatus;
+	
+	@Enumerated(EnumType.STRING)
+	private Status status;
 
 	@OneToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "secondary_info_fk")
 	private EmployeeSecondaryInfo employeeSecondaryInfo;
 
 	@OneToMany(mappedBy = "employee", cascade = CascadeType.ALL)
-	private List<EmployeeEducationInfo> employeeEducationInfos;
+	private List<EmployeeEducationInfo> employeeEducationInfos = Lists.newArrayList();
 
 	@OneToMany(mappedBy = "employee", cascade = CascadeType.ALL)
 	private List<EmployeeContactInfo> employeeContactInfos;
@@ -71,5 +78,8 @@ public class Employee {
 
 	@OneToMany(mappedBy = "employee", cascade = CascadeType.ALL)
 	private List<EmployeeTechnicalskillsInfo> employeeTechnicalskillsInfos;
+	
+	@ManyToOne(cascade = CascadeType.ALL)
+	private Batch batch;
 	
 }

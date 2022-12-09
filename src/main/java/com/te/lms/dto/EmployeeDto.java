@@ -3,11 +3,13 @@ package com.te.lms.dto;
 import java.time.LocalDate;
 import java.util.List;
 
+import com.google.common.collect.Lists;
 import com.te.lms.entity.EmployeeBankDetails;
 import com.te.lms.entity.EmployeeSecondaryInfo;
 import com.te.lms.enums.Designation;
 import com.te.lms.enums.EmployeeStatus;
 import com.te.lms.enums.Gender;
+import com.te.lms.enums.Status;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -32,12 +34,13 @@ public class EmployeeDto {
 	private Gender gender;
 	private String employeeNationality;
 	private EmployeeStatus employeeStatus;
+	private Status status;
 
 	private EmployeeSecondaryInfo employeeSecondaryInfo;
-	private List<EmployeeEducationInfoDto> employeeEducationInfos;
-	private List<EmployeeContactInfoDto> employeeContactInfos;
-	private List<EmployeeAddressInfoDto> employeeAddressInfos;
+	private List<EmployeeEducationInfoDto> employeeEducationInfos = Lists.newArrayList();
+	private List<EmployeeContactInfoDto> employeeContactInfos= Lists.newArrayList();
+	private List<EmployeeAddressInfoDto> employeeAddressInfos= Lists.newArrayList();
 	private EmployeeBankDetails employeeBankDetails;
-	private List<EmployeeExperienceInfoDto> employeeExperienceInfos;
-	private List<EmployeeTechnicalskillsInfoDto> employeeTechnicalskillsInfos;
+	private List<EmployeeExperienceInfoDto> employeeExperienceInfos= Lists.newArrayList();
+	private List<EmployeeTechnicalskillsInfoDto> employeeTechnicalskillsInfos= Lists.newArrayList();
 }

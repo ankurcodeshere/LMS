@@ -3,7 +3,11 @@ package com.te.lms.dto;
 import java.time.LocalDate;
 import java.util.List;
 
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+
 import com.te.lms.enums.BatchStatus;
+import com.te.lms.enums.Status;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,6 +27,5 @@ public class BatchUpdateDto {
 	private List<TechnologiesDto> technologies;
 	private LocalDate startDate;
 	private LocalDate endDate;
-	private BatchStatus status;
-
+	private BatchStatus batchStatus;
 }
