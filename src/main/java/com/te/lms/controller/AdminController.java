@@ -54,7 +54,29 @@ public class AdminController {
 		return new ApiResponse<String>("Updation is unsuccessfull", "",
 				"Mentor with mentor id  '" + empId + "' is not found in the database.");
 	}
-
+	
+	@PutMapping(path = "/delete/mentor/{empId}")
+	public ApiResponse<String> deleteMentor(@PathVariable(name = "empId") String empId) {
+		Optional<Boolean> optionalMentor = adminService.deleteMentor(empId);
+		if (optionalMentor.get() == true) {
+			return new ApiResponse<String>("record was successfully deleted", "",
+					"mentor with employee id  '" + empId + "' got deleted.");
+		}
+		return new ApiResponse<String>("Deletion is unsuccessfull", "",
+				"mentor with employee id  '" + empId + "' is not found in the database.");
+	}
+	
+	@PostMapping(path = "/register/batch")
+	public ApiResponse<String> registerBatch(@RequestBody BatchRegisterDto batchRegisterDto) {
+		Optional<String> batch = adminService.registerBatch(batchRegisterDto);
+		if(batch.isPresent()) {
+		return new ApiResponse<String>("registration successful", "",
+				"Batch added in the database with the data:" + batchRegisterDto);}
+		return new ApiResponse<String>("registration could not be done", "",
+				"Batch details are invalid:" + batchRegisterDto);
+	}
+	
+	
 	@PutMapping(path = "/update/batch/{batchId}")
 	public ApiResponse<String> updateBatch(@PathVariable(name = "batchId") String batchId,
 			@RequestBody BatchUpdateDto batchUpdateDto) {
@@ -67,17 +89,6 @@ public class AdminController {
 				"Batch with batch id  '" + batchId + "' is not found in the database.");
 	}
 
-	@PutMapping(path = "/delete/mentor/{empId}")
-	public ApiResponse<String> deleteMentor(@PathVariable(name = "empId") String empId) {
-		Optional<Boolean> optionalMentor = adminService.deleteMentor(empId);
-		if (optionalMentor.get() == true) {
-			return new ApiResponse<String>("record was successfully deleted", "",
-					"mentor with employee id  '" + empId + "' got deleted.");
-		}
-		return new ApiResponse<String>("Deletion is unsuccessfull", "",
-				"mentor with employee id  '" + empId + "' is not found in the database.");
-	}
-
 	@PutMapping(path = "/delete/batch/{batchId}")
 	public ApiResponse<String> deleteBatch(@PathVariable(name = "batchId") String batchId) {
 		Optional<Boolean> optionalMentor = adminService.deleteBatch(batchId);
@@ -87,16 +98,6 @@ public class AdminController {
 		}
 		return new ApiResponse<String>("Deletion is unsuccessfull", "",
 				"batch with batch id  '" + batchId + "' is not found in the database.");
-	}
-
-	@PostMapping(path = "/register/batch")
-	public ApiResponse<String> registerBatch(@RequestBody BatchRegisterDto batchRegisterDto) {
-		Optional<String> batch = adminService.registerBatch(batchRegisterDto);
-		if(batch.isPresent()) {
-		return new ApiResponse<String>("registration successful", "",
-				"Batch added in the database with the data:" + batchRegisterDto);}
-		return new ApiResponse<String>("registration could not be done", "",
-				"Batch details are invalid:" + batchRegisterDto);
 	}
 	
 	@GetMapping(path = "/search/{employeeId}")

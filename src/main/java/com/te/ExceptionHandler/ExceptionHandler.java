@@ -1,4 +1,4 @@
-package cvom.te.ExceptionHandler;
+package com.te.ExceptionHandler;
 
 import org.springframework.web.bind.annotation.ControllerAdvice;
 

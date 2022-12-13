@@ -22,6 +22,7 @@ import lombok.Setter;
 @Builder
 
 public class BatchUpdateDto {
+	private String batchId;
 	private String batchName;
 	private String mentorName;
 	private List<TechnologiesDto> technologies;
